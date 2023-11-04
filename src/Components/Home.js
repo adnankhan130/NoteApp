@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { addDoc, collection, doc, Timestamp, onSnapshot, updateDoc,query,where, deleteDoc, } from 'firebase/firestore';
+import { addDoc, collection, doc, Timestamp, onSnapshot, updateDoc, query, where, deleteDoc, } from 'firebase/firestore';
 import { db } from '../firebase';
-import { useNavigate  } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Home = ({ user }) => {
   const [isPopVisible, setPopVisible] = useState(false);
@@ -13,7 +14,7 @@ const Home = ({ user }) => {
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [completedTasks, setCompletedTasks] = useState([]);
   const [isCompletedView, setIsCompletedView] = useState(false);
-  const userTasksCollection = collection(db, 'users', user.uid, 'tasks');
+  const userTasksCollection = collection(db, 'users', user.uid, 'Todo');
 
   const [note, setNote] = useState({
     title: '',
@@ -31,7 +32,7 @@ const Home = ({ user }) => {
     }
     try {
       if (isEditing) {
-        const taskDocRef = doc(db, 'Todo', editTaskId);
+        const taskDocRef = doc(db, 'users', user.uid, 'Todo', editTaskId);
         const updatedNote = {
           title: note.title,
           category: note.category,
@@ -69,12 +70,12 @@ const Home = ({ user }) => {
       });
       setNotes(updateNote);
     });
-  
+
     return () => unsubscribe();
   }, [user, isCompletedView]);
 
   const deleteData = async (noteId) => {
-    const taskDocRef = doc(db, 'Todo', noteId);
+    const taskDocRef = doc(db, 'users', user.uid, 'Todo', noteId);
     try {
       await deleteDoc(taskDocRef);
     } catch (error) {
@@ -154,14 +155,14 @@ const Home = ({ user }) => {
       });
     }
   };
-  
+
 
   const handleTaskCompletion = (noteId, isCompleted) => {
     if (isCompleted) {
-      const taskDocRef = doc(db, 'Todo', noteId);
+      const taskDocRef = doc(db, 'users', user.uid, 'Todo', noteId);
       updateDoc(taskDocRef, { completed: true });
     } else {
-      const taskDocRef = doc(db, 'Todo', noteId);
+      const taskDocRef = doc(db, 'users', 'Todo', noteId);
       updateDoc(taskDocRef, { completed: false });
     }
     const updatedNotes = notes.map((note) =>
@@ -203,7 +204,7 @@ const Home = ({ user }) => {
             + ADD
           </button>
         </div>
-        <div className='mt-8 grid grid-cols-2 md:grid-cols-5 lg:grid-cols-8 gap-2'>
+        <div className='mt-8 grid grid-cols-5 md:grid-cols-5 lg:grid-cols-8 gap-2'>
           <button
             className={`rounded-full py-2 ${selectedCategory === 'ALL' ? 'bg-blue-600 text-white' : ''}`}
             onClick={() => setSelectedCategory('ALL')}
@@ -248,8 +249,8 @@ const Home = ({ user }) => {
           <div className='bg-white p-5 rounded shadow-lg'>
             <h2 className='text-lg font-semibold mb-3'>{isEditing ? 'EDIT NOTE' : 'ADD NOTE'}</h2>
             <div className='border border-black mb-7'></div>
-            <form onSubmit={handleSubmit}>
-              <div className='mb-7 items-center inline-block'>
+            <form onSubmit={handleSubmit} >
+              <div className='mb-7 items-center inline-block '>
                 <input
                   type='text'
                   placeholder='Add Title...'
@@ -353,14 +354,14 @@ const Home = ({ user }) => {
         </div>
       </div>
       <div className="fixed bottom-0 left-0 w-full bg-gray-100 p-4 flex justify-between items-center">
-  <p className="text-gray-500">NOTE APP BY ADNAN © 2023</p>
-  <button
-    className="bg-blue-500 text-white px-4 py-2 rounded"
-   onClick={handleNavigation}
-  >
-    Logout
-  </button>
-</div>
+        <p className="text-gray-500">NOTE APP BY ADNAN © 2023</p>
+        <button
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+          onClick={handleNavigation}
+        >
+          Logout
+        </button>
+      </div>
 
     </div>
   );
